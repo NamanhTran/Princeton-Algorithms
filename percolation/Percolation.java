@@ -11,6 +11,8 @@ public class Percolation {
     private int[][] grid;
     private int size;
     private int openSites = 0;
+    private int head;
+    private int tail;
 
     private WeightedQuickUnionUF uf;
 
@@ -20,8 +22,11 @@ public class Percolation {
         }
         else {
             grid = new int[n][n];
-            uf = new WeightedQuickUnionUF(xyTo1D(n, n));
+            uf = new WeightedQuickUnionUF(n * n + 2);
             size = n;
+            head = n * n;
+            tail = n * n + 1;
+            //System.out.printf("n: %d head: %d tail: %d\n", n, head, tail);
         }
     }
 
@@ -32,33 +37,39 @@ public class Percolation {
 
         if (!isOpen(row, col)) {
             grid[row - 1][col - 1] = 1;
+            openSites++;
+        }
+        // If it is already open
+        else
+            return;
+
+        if (row == 1) {
+            uf.union(head, xyTo1D(row, col));
         }
 
-        openSites++;
-
-        System.out.println(uf.count());
-        System.out.println(uf.find(xyTo1D(row, col)));
+        if (row == size) {
+            uf.union(tail, xyTo1D(row, col));
+        }
 
         // check if top is open
-        if (isOpen(row + 1, col)) {
-            uf.union(xyTo1D(row + 1, col), xyTo1D(row, col));
-        }
-        // check if down is open
-        if (isOpen(row - 1, col)) {
+        if (row != 1 && isOpen(row - 1, col)) {
             uf.union(xyTo1D(row - 1, col), xyTo1D(row, col));
         }
 
+        // check if bottom is open
+        if (row + 1 <= size && isOpen(row + 1, col)) {
+            uf.union(xyTo1D(row + 1, col), xyTo1D(row, col));
+        }
+
         // check if left is open
-        if (isOpen(row, col - 1)) {
-            uf.union(xyTo1D(row + 1, col - 1), xyTo1D(row, col));
+        if (col != 1 && isOpen(row, col - 1)) {
+            uf.union(xyTo1D(row, col - 1), xyTo1D(row, col));
         }
 
         // check if right is open
-        if (isOpen(row, col + 1)) {
+        if (col + 1 <= size && isOpen(row, col + 1)) {
             uf.union(xyTo1D(row, col + 1), xyTo1D(row, col));
         }
-
-        System.out.println(uf.connected(xyTo1D(1, 1), xyTo1D(1, 2)));
     }
 
     public boolean isOpen(int row, int col) {  // is site (row, col) open?
@@ -78,33 +89,31 @@ public class Percolation {
             throw new java.lang.IllegalArgumentException("n cannot be less than or equal to 0");
         }
 
-        if (row == 1 && isOpen(row, col)) {
-            System.out.println(row * col);
-            uf.union(xyTo1D(row, col), 1);
-            return true;
+        if (isOpen(row, col)) {
+            return uf.connected(xyTo1D(row, col), head);
         }
-
         return false;
     }
 
     public int numberOfOpenSites() {           // number of open sites
-
         return openSites;
     }
 
     public boolean percolates() {              // does the system percolate?
-
+        if (uf.connected(head, tail))
+            return true;
         return false;
     }
 
     private int xyTo1D(int r, int c) {
-        return (r - 1) * (c - 1);
+        int val = size * (r - 1) + (c - 1);
+        //System.out.printf("xyTo1D: r: %d c: %d val: %d\n", r, c, val);
+        return size * (r - 1) + (c - 1);
     }
 
     public static void main(String[] args) {   // test client (optional)
         Percolation per = new Percolation(Integer.parseInt(args[0]));
         per.open(1, 1);
         per.open(1, 2);
-
     }
 }
