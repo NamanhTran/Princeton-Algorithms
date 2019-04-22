@@ -26,7 +26,6 @@ public class Percolation {
             size = n;
             head = n * n;
             tail = n * n + 1;
-            //System.out.printf("n: %d head: %d tail: %d\n", n, head, tail);
         }
     }
 
@@ -106,8 +105,6 @@ public class Percolation {
     }
 
     private int xyTo1D(int r, int c) {
-        int val = size * (r - 1) + (c - 1);
-        //System.out.printf("xyTo1D: r: %d c: %d val: %d\n", r, c, val);
         return size * (r - 1) + (c - 1);
     }
 
