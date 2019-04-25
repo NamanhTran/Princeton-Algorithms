@@ -77,7 +77,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     private void resizeArr(int n) {
+        Item[] newArr = (Item[]) new Object[n];
+        int counter = 0;
+        for (int i = front; i < end + 1; i++) {
+            newArr[counter++] = queue[i % queue.length];
+        }
 
+        end -= front;
+        front = 0;
+        queue = newArr;
     }
 
     private void print() {
