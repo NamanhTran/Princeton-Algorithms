@@ -42,18 +42,24 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         // Add item to the end of the array
         queue[end++ % queue.length] = item;
+
         size++;
     }
 
     // Remove and return a random item
     public Item dequeue() {
+        if (isEmpty())
+            throw new java.util.NoSuchElementException("The queue is empty");
 
         // Remove item from the front
-        Item item = queue[++front % queue.length];
-        queue[front % queue.length] = null;
+        Item item = queue[front % queue.length];
+        queue[front++ % queue.length] = null;
+
+        size--;
 
         // If array is 1/4th full then reduce the size
         if (size > 0 && size == queue.length / 4) {
+            System.out.println("Resizing from " + queue.length + " to " + queue.length / 2);
             resizeArr(queue.length / 2);
         }
 
@@ -62,8 +68,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     // Return a random item (but do not remove it)
     public Item sample() {
+
+        if (isEmpty())
+            throw new java.util.NoSuchElementException("The queue is empty");
+
         // Use StdRandom to get a random array index between front and end
         int random = StdRandom.uniform(front, end) % queue.length;
+
         return queue[random];
     }
 
@@ -74,6 +85,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private class IterableQueue implements Iterator<Item> {
         // Seed?
+        public boolean hasNext() {
+            return false;
+        }
+
+        public Item next() {
+            return queue[0];
+        }
     }
 
     private void resizeArr(int n) {
@@ -89,11 +107,31 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     private void print() {
+        for (int i = 0; i < queue.length; i++) {
+            System.out.print(queue[i] + " | ");
+        }
 
+        System.out.print("END\n");
     }
 
     // Unit testing (optional)
     public static void main(String[] args) {
+        RandomizedQueue<Integer> myRQ = new RandomizedQueue<Integer>();
 
+        myRQ.print();
+
+        System.out.println("\nAdding to the RQ");
+        for (int i = 0; i < 10; i++) {
+            myRQ.enqueue(i);
+            myRQ.print();
+        }
+
+        myRQ.print();
+
+        System.out.println("\nRemoving from the RQ");
+        for (int i = 0; i < 10; i++) {
+            myRQ.dequeue();
+            myRQ.print();
+        }
     }
 }
