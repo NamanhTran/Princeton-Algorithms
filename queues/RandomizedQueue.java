@@ -63,7 +63,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         // If array is 1/4th full then reduce the size
         if (size > 0 && size == queue.length / 4) {
-            System.out.println("Resizing from " + queue.length + " to " + queue.length / 2);
+            //System.out.println("Resizing from " + queue.length + " to " + queue.length / 2);
             resizeArr(queue.length / 2);
         }
 
@@ -89,8 +89,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private class IterableQueue implements Iterator<Item> {
         private Item[] itQueue = queue;
-        int itFront = front;
-        int itEnd = end;
+        private int itFront = front;
+        private int itEnd = end;
+        private boolean firstRun = true;
 
         // Seed?
         public boolean hasNext() {
@@ -105,7 +106,25 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
                 throw new java.util.NoSuchElementException(
                         "The iterator has no more items to return");
 
-            return queue[0];
+            if (firstRun) {
+                int start;
+                int end;
+
+                if (itFront % itQueue.length < itEnd % itQueue.length) {
+                    start = itFront % itQueue.length;
+                    end = itEnd % itQueue.length;
+                }
+
+                else {
+                    start = itEnd % itQueue.length;
+                    end = itFront % itQueue.length;
+                }
+
+                StdRandom.shuffle(itQueue, start, end);
+                firstRun = false;
+            }
+
+            return itQueue[itFront++ % itQueue.length];
         }
     }
 
@@ -177,7 +196,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         myRQ.print();
 
         System.out.println("\nAdding to the RQ");
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 8; i++) {
             myRQ.enqueue(i);
             myRQ.print();
         }
@@ -185,11 +204,26 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         myRQ.print();
 
         System.out.println("\nRemoving from the RQ");
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 8; i++) {
             System.out.println("Removed: " + myRQ.dequeue());
             myRQ.print();
         }
 
-        myRQ.sample();
+        //myRQ.sample();
+
+        System.out.println("\nTesting Iterator\n");
+
+        System.out.println("\nAdding to the RQ");
+        for (int i = 0; i < 10; i++) {
+            myRQ.enqueue(i);
+            myRQ.print();
+        }
+
+        Iterator<Integer> it = myRQ.iterator();
+
+        for (int s : myRQ) {
+            System.out.println(s);
+        }
+
     }
 }
