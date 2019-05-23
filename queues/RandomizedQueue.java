@@ -51,9 +51,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (isEmpty())
             throw new java.util.NoSuchElementException("The queue is empty");
 
+        int random = StdRandom.uniform(front, end) % queue.length;
+
         // Remove item from the front
-        Item item = queue[front % queue.length];
-        queue[front++ % queue.length] = null;
+        Item item = queue[random];
+        queue[random % queue.length] = null;
+
+        shiftArr(random);
 
         size--;
 
@@ -84,12 +88,23 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     private class IterableQueue implements Iterator<Item> {
+        private Item[] itQueue = queue;
+        int itFront = front;
+        int itEnd = end;
+
         // Seed?
         public boolean hasNext() {
-            return false;
+            if (itFront == itEnd)
+                return false;
+
+            return true;
         }
 
         public Item next() {
+            if (!hasNext())
+                throw new java.util.NoSuchElementException(
+                        "The iterator has no more items to return");
+
             return queue[0];
         }
     }
@@ -104,6 +119,47 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         end -= front;
         front = 0;
         queue = newArr;
+    }
+
+    private void shiftArr(int pos) {
+        if (pos == front) {
+            front++;
+        }
+
+        else if (pos == end) {
+            end--;
+        }
+
+        else {
+            int disToFront = Math.abs(front - pos);
+            int disToBack = Math.abs(end - pos);
+
+            // Shift the array one up (to pos)
+            if (disToFront < disToBack) {
+                Item nextItem = null;
+
+                for (int i = front; i <= pos; i++) {
+                    Item temp = queue[i % queue.length];
+                    queue[i % queue.length] = nextItem;
+                    nextItem = temp;
+                }
+
+                front++;
+            }
+
+            // Shift the array one down (to pos)
+            else {
+                Item prevItem = null;
+
+                for (int i = end; i >= pos; i--) {
+                    Item temp = queue[i % queue.length];
+                    queue[i % queue.length] = prevItem;
+                    prevItem = temp;
+                }
+
+                end--;
+            }
+        }
     }
 
     private void print() {
@@ -130,8 +186,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         System.out.println("\nRemoving from the RQ");
         for (int i = 0; i < 10; i++) {
-            myRQ.dequeue();
+            System.out.println("Removed: " + myRQ.dequeue());
             myRQ.print();
         }
+
+        myRQ.sample();
     }
 }
