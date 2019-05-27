@@ -36,13 +36,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     // Add the item
     public void enqueue(Item item) {
         // If array is full then extend
-        if (size == queue.length) {
+        if (size == queue.length)
             resizeArr(2 * queue.length);
-        }
 
         // Add item to the end of the array
         queue[end++ % queue.length] = item;
 
+        // Increase the size of the queue
         size++;
     }
 
@@ -51,28 +51,29 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (isEmpty())
             throw new java.util.NoSuchElementException("The queue is empty");
 
-        int random = StdRandom.uniform(front, end) % queue.length;
+        // Generate a random number between front and end
+        int random = StdRandom.uniform(front, end);
 
         // Remove item from the front
         Item item = queue[random];
         queue[random % queue.length] = null;
 
+        // Shift the array so they are all alined
         shiftArr(random);
 
+        // Reduced the size of the queue
         size--;
 
         // If array is 1/4th full then reduce the size
-        if (size > 0 && size == queue.length / 4) {
-            //System.out.println("Resizing from " + queue.length + " to " + queue.length / 2);
+        if (size > 0 && size == queue.length / 4)
             resizeArr(queue.length / 2);
-        }
 
+        // Return the item
         return item;
     }
 
     // Return a random item (but do not remove it)
     public Item sample() {
-
         if (isEmpty())
             throw new java.util.NoSuchElementException("The queue is empty");
 
@@ -93,7 +94,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         private int itEnd = end;
         private boolean firstRun = true;
 
-        // Seed?
+        // If the front and end is the same then the queue is empty
         public boolean hasNext() {
             if (itFront == itEnd)
                 return false;
@@ -101,12 +102,16 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             return true;
         }
 
+        // Return the next random item
         public Item next() {
+            // If the queue is empty then throw exception
             if (!hasNext())
                 throw new java.util.NoSuchElementException(
                         "The iterator has no more items to return");
 
+            // Case for the first iteration 
             if (firstRun) {
+                // Calculate the actual array index of start and end
                 int start;
                 int end;
 
@@ -120,62 +125,78 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
                     end = itFront % itQueue.length;
                 }
 
+                // Shuffle the array once
                 StdRandom.shuffle(itQueue, start, end);
                 firstRun = false;
             }
 
+            // Return the front of the shuffled array
             return itQueue[itFront++ % itQueue.length];
         }
     }
 
     private void resizeArr(int n) {
+        // Create a new queue array of size N
         Item[] newArr = (Item[]) new Object[n];
+
+        // Copy the content of the queue array into the new array
         int counter = 0;
         for (int i = front; i < end + 1; i++) {
             newArr[counter++] = queue[i % queue.length];
         }
 
+        // Recalculate the new front and end of the array
         end -= front;
         front = 0;
+
+        // Set the class's queue to the new array
         queue = newArr;
     }
 
     private void shiftArr(int pos) {
-        if (pos == front) {
+        // If the removed element is the front just increment the front by one
+        if (pos == front)
             front++;
-        }
 
-        else if (pos == end) {
+        // If the removed element is the end just decrement the end by one
+        else if (pos == end)
             end--;
-        }
 
+        // If the removed element is somewhere in the middle of the array
         else {
+            // Calcuate the distance from pos to the front and end
             int disToFront = Math.abs(front - pos);
             int disToBack = Math.abs(end - pos);
 
-            // Shift the array one up (to pos)
+            // Shift the array one up (to pos) if the front is closer
             if (disToFront < disToBack) {
+                // Holds the next item to shift up
                 Item nextItem = null;
 
+                // Shift the array up by one
                 for (int i = front; i <= pos; i++) {
                     Item temp = queue[i % queue.length];
                     queue[i % queue.length] = nextItem;
                     nextItem = temp;
                 }
 
+                // Readjust the front to move up by one
                 front++;
             }
 
-            // Shift the array one down (to pos)
+            // Shift the array one down (to pos) if the end is closer
             else {
+                // Holds the next item to shift down
                 Item prevItem = null;
 
-                for (int i = end; i >= pos; i--) {
+                // Shift the array down by one
+                for (int i = end - 1; i >= pos; i--) {
                     Item temp = queue[i % queue.length];
                     queue[i % queue.length] = prevItem;
                     prevItem = temp;
                 }
 
+                // Readjust the front to move down by one
                 end--;
             }
         }
@@ -220,9 +241,19 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
 
         Iterator<Integer> it = myRQ.iterator();
+        Iterator<Integer> it2 = myRQ.iterator();
 
-        for (int s : myRQ) {
-            System.out.println(s);
+        myRQ.dequeue();
+        myRQ.dequeue();
+        myRQ.dequeue();
+        myRQ.print();
+
+        for (int i = 0; i < 8; i++) {
+            System.out.println("it: " + it.next());
+        }
+
+        for (int i = 0; i < 8; i++) {
+            System.out.println("it2: " + it2.next());
         }
 
     }
