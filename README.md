@@ -6,6 +6,7 @@ Week 1
     - Percolation Assignment (95%)
 2. **Analysis of Algorithms**
 
+------
 Week 2
 ------
 1. **Stacks and Queues**
