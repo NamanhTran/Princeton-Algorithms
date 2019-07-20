@@ -63,6 +63,7 @@ public class Point implements Comparable<Point> {
         /* YOUR CODE HERE */
         double numerator = that.y - this.y;
         double denominator = that.x - this.x;
+        int sign = this.compareTo(that);
 
         if (numerator == 0)
             return 0;
@@ -79,7 +80,11 @@ public class Point implements Comparable<Point> {
                 return 0;
         }
 
-        return numerator / denominator;
+        if (sign == -1) {
+            return numerator / denominator;
+        }
+
+        return -1 * (numerator / denominator);
     }
 
     /**
@@ -103,10 +108,10 @@ public class Point implements Comparable<Point> {
             return -1;
 
         else {
-            if (this.x > that.y)
+            if (this.x > that.x)
                 return 1;
 
-            else if (this.x < that.y)
+            else if (this.x < that.x)
                 return -1;
 
             else
