@@ -76,7 +76,9 @@ public class Point implements Comparable<Point> {
         else if (numerator == 0)
             return 0;
 
-        return numerator / denominator;
+        double slope = numerator / denominator;
+
+        return slope;
     }
 
     /**

@@ -1,9 +1,11 @@
 import java.util.Arrays;
 import java.util.ArrayList;
 import edu.princeton.cs.algs4.*;
+import java.lang.*;
 public class FastCollinearPoints {
     private ArrayList<LineSegment> segments;
-    private int arrIndex = 0;
+    private Point lastLargestPoint = null;
+    private double lastSlopeToLargest = Double.NaN;
 
     public FastCollinearPoints(Point[] points) {     // finds all line segments containing 4 points or more points
         segments = new ArrayList<LineSegment>();
@@ -32,11 +34,9 @@ public class FastCollinearPoints {
         int consecutiveSlopes = 0;
         Point largestPoint = null;
         double prevSlope = Double.NaN;
-        Point lastSegmentEndpoint = null;
 
         for (int i = 0; i < points.length; i++) {
             // Skip point because it is the same point(?)
-
 
             // Get the slope from the origin to to another point
             double curSlope = origin.slopeTo(points[i]);
@@ -48,18 +48,19 @@ public class FastCollinearPoints {
             }
 
             // Only want to compare points that greater than the origin because we don't want duplicates
-            if (origin.compareTo(points[i]) == 1 && i != points.length - 1) {
+            if (origin.compareTo(points[i]) == 1 && i != points.length - 1)
                 continue;
-            }
+            
             // If the current slope doesn't match that means we either have a collinear or don't
             if (curSlope != prevSlope) {
                 // There would be 3 slopes in total if the points are collinear
                 if (consecutiveSlopes >= 3) {
                     // We get the point from the start to the end
                     // Thinking: If we compare the start and end and if the start is greater than the end we don't connect because it's already been connected earlier in the loop
-                    Point endpoint = points[i - 1];
-                    if (!isStartGreaterEqualToEnd(origin, largestPoint)) {
+                    if (!isStartGreaterEqualToEnd(origin, largestPoint) && !isSubsegment(prevSlope, largestPoint)) {
                         makeCollinearSegment(origin, largestPoint);
+                        lastLargestPoint = largestPoint;
+                        lastSlopeToLargest = prevSlope;
                         consecutiveSlopes = 1;
                     }
                 }
@@ -83,29 +84,41 @@ public class FastCollinearPoints {
 
             // If last element in the loop
             if (i == points.length - 1 && consecutiveSlopes >= 3) {
-                Point endpoint = points[i];
-                if (!isStartGreaterEqualToEnd(origin, largestPoint)) {
+                if (!isStartGreaterEqualToEnd(origin, largestPoint) && !isSubsegment(prevSlope, largestPoint)) {
                     makeCollinearSegment(origin, largestPoint);
-                    lastSegmentEndpoint = largestPoint;
+                    lastLargestPoint = largestPoint;
+                    lastSlopeToLargest = prevSlope;
                 }
 
                 consecutiveSlopes = 0;
             }
             
             System.out.println("Origin: " + origin.toString() + " In question " + points[i].toString() + " Prev slope: " + prevSlope + " Cur slope: " + curSlope + " Consective: " + consecutiveSlopes);
-            
+
             prevSlope = curSlope;
         }
 
         System.out.println();
     }
 
-    private boolean isStartGreaterEqualToEnd(Point start, Point end) {
-        if (end.compareTo(start) == 1 || end.compareTo(start) == 0) { 
+    private boolean isSubsegment(double curSlope, Point largestPoint) {
+        if (Double.isNaN(lastSlopeToLargest) && lastLargestPoint == null) {
             return false;
-
         }
 
+        System.out.println("lastSlopeToLargest: " + lastSlopeToLargest + " lastLargestPoint: " + lastLargestPoint.toString() + " curSlope: " + curSlope + " largestPoint" + largestPoint.toString());
+        // ***FLOATING POINT COMPARISON ERROR FOR SOME NUMBERS***
+        if (Double.compare(lastSlopeToLargest, curSlope) == 0 && largestPoint.compareTo(lastLargestPoint) == 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isStartGreaterEqualToEnd(Point start, Point end) {
+        if (end.compareTo(start) == 1 || end.compareTo(start) == 0)
+            return false;
+        
         return true;
     }
 
