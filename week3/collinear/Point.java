@@ -63,28 +63,20 @@ public class Point implements Comparable<Point> {
         /* YOUR CODE HERE */
         double numerator = that.y - this.y;
         double denominator = that.x - this.x;
-        int sign = this.compareTo(that);
 
-        if (numerator == 0)
-            return 0;
+        if (denominator == 0) {
 
-        else if (denominator == 0) {
-
-            if (this.y > that.y)
+            if (this.y == that.y)
                 return Double.NEGATIVE_INFINITY;
 
-            else if (this.y < that.y)
-                return Double.POSITIVE_INFINITY;
-
             else
-                return 0;
+                return Double.POSITIVE_INFINITY;
         }
 
-        if (sign == -1) {
-            return numerator / denominator;
-        }
+        else if (numerator == 0)
+            return 0;
 
-        return -1 * (numerator / denominator);
+        return numerator / denominator;
     }
 
     /**
