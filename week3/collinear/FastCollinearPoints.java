@@ -1,20 +1,30 @@
 import java.util.Arrays;
 import java.util.ArrayList;
-import edu.princeton.cs.algs4.*;
-import java.lang.*;
-public class FastCollinearPoints {
-    private ArrayList<LineSegment> segments;
-    private Point lastLargestPoint = null;
-    private double lastSlopeToLargest = Double.NaN;
+import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
 
-    public FastCollinearPoints(Point[] points) {     // finds all line segments containing 4 points or more points
+public class FastCollinearPoints 
+{
+    private ArrayList<LineSegment> segments;
+
+    // finds all line segments containing 4 points or more points
+    public FastCollinearPoints(Point[] points) 
+    {     // finds all line segments containing 4 points or more points
         segments = new ArrayList<LineSegment>();
 
+        // Check for any null inputs
+        validateInput(points);
+
         // Sort the array in natural order first to maintain stability of sorting slopes later
-        Arrays.sort(points);
+        Point[] sortedPoints = points.clone();
+        Arrays.sort(sortedPoints);
+
+        // Check if the array contain duplicate points
+        checkDuplicates(sortedPoints);
 
         // Need to make a copy of the point array
-        Point[] cpy = points.clone();
+        Point[] cpy = sortedPoints.clone();
 
         // Loop through the copy array
         for (int i = 0; i < cpy.length; i++) {
@@ -24,140 +34,114 @@ public class FastCollinearPoints {
             // Sort the array base on slope on point p
             Arrays.sort(cpy, origin.slopeOrder());
 
-            // Loop through array finding 4 or more matching slopes with point p
             findConsecutiveSlopes(cpy, origin);
         }
     }
 
-    private void findConsecutiveSlopes(Point[] points, Point origin) {
-
+    // Finds consecutive slopes from the point origin and forms collinear if found
+    private void findConsecutiveSlopes(Point[] points, Point origin) 
+    {
         int consecutiveSlopes = 0;
         Point largestPoint = null;
+        Point smallestPoint = null;
         double prevSlope = Double.NaN;
 
         for (int i = 0; i < points.length; i++) {
-            // Skip point because it is the same point(?)
-
+            
             // Get the slope from the origin to to another point
             double curSlope = origin.slopeTo(points[i]);
 
-            // If first run through then set the slope to one slope because we have one slope calculated
+            // If first run through then set the slope to one consec. slope because we have one slope calculated
             if (Double.isNaN(prevSlope)) {
                 prevSlope = curSlope;
                 largestPoint = points[i];
+                smallestPoint = points[i];
             }
-
-            // Only want to compare points that greater than the origin because we don't want duplicates
-            if (origin.compareTo(points[i]) == 1 && i != points.length - 1)
-                continue;
             
             // If the current slope doesn't match that means we either have a collinear or don't
             if (curSlope != prevSlope) {
                 // There would be 3 slopes in total if the points are collinear
                 if (consecutiveSlopes >= 3) {
-                    // We get the point from the start to the end
-                    // Thinking: If we compare the start and end and if the start is greater than the end we don't connect because it's already been connected earlier in the loop
-                    if (!isStartGreaterEqualToEnd(origin, largestPoint) && !isSubsegment(prevSlope, largestPoint)) {
+                    if (isOriginSmallest(origin, smallestPoint))
                         makeCollinearSegment(origin, largestPoint);
-                        lastLargestPoint = largestPoint;
-                        lastSlopeToLargest = prevSlope;
-                        consecutiveSlopes = 1;
-                    }
-                }
-                
-                // If there is no collinear reset consecutive counter
-                else {
-                    consecutiveSlopes = 1;
                 }
 
+                // If no collinear, reset for next possible collinear
+                consecutiveSlopes = 1;
+                smallestPoint = points[i];
                 largestPoint = points[i];
             }
 
             // If the slopes match
             else {
-                // 
-                if (points[i].compareTo(largestPoint) == 1) {
+                if (points[i].compareTo(largestPoint) > 0)
                     largestPoint = points[i];
-                }
+
+                if (points[i].compareTo(smallestPoint) < 0)
+                    smallestPoint = points[i];
+                    
                 consecutiveSlopes++;
             }
 
-            // If last element in the loop
+            // If last element in the loop check for collinear for the last element
             if (i == points.length - 1 && consecutiveSlopes >= 3) {
-                if (!isStartGreaterEqualToEnd(origin, largestPoint) && !isSubsegment(prevSlope, largestPoint)) {
+                if (isOriginSmallest(origin, smallestPoint)) 
                     makeCollinearSegment(origin, largestPoint);
-                    lastLargestPoint = largestPoint;
-                    lastSlopeToLargest = prevSlope;
-                }
 
                 consecutiveSlopes = 0;
             }
             
-            System.out.println("Origin: " + origin.toString() + " In question " + points[i].toString() + " Prev slope: " + prevSlope + " Cur slope: " + curSlope + " Consective: " + consecutiveSlopes);
-
             prevSlope = curSlope;
         }
-
-        System.out.println();
     }
 
-    private boolean isSubsegment(double curSlope, Point largestPoint) {
-        if (Double.isNaN(lastSlopeToLargest) && lastLargestPoint == null) {
-            return false;
-        }
-
-        System.out.println("lastSlopeToLargest: " + lastSlopeToLargest + " lastLargestPoint: " + lastLargestPoint.toString() + " curSlope: " + curSlope + " largestPoint" + largestPoint.toString());
-        // ***FLOATING POINT COMPARISON ERROR FOR SOME NUMBERS***
-        if (Double.compare(lastSlopeToLargest, curSlope) == 0 && largestPoint.compareTo(lastLargestPoint) == 0) {
+    private boolean isOriginSmallest(Point origin, Point test) 
+    {
+        if (origin.compareTo(test) < 0 || origin.compareTo(test) == 0)
             return true;
-        }
 
         return false;
     }
 
-    private boolean isStartGreaterEqualToEnd(Point start, Point end) {
-        if (end.compareTo(start) == 1 || end.compareTo(start) == 0)
-            return false;
-        
-        return true;
-    }
-
-    private void makeCollinearSegment(Point start, Point end) {
+    private void makeCollinearSegment(Point start, Point end) 
+    {
         segments.add(new LineSegment(start, end));
-        System.out.println("Made " + start.toString() + " -> " + end.toString());
     }
 
-    public int numberOfSegments() {                  // the number of line segments
+    private void validateInput(Point[] points) 
+    {
+        if (points == null)
+            throw new java.lang.IllegalArgumentException("The arguement cannot be null");
+
+        for (int i = 0; i < points.length; i++) {
+            if (points[i] == null)
+                throw new java.lang.IllegalArgumentException("The arguement cannot cannot contain a null");
+        }
+    }
+
+    private void checkDuplicates(Point[] points) {
+        for (int i = 0; i < points.length; i++) {
+            for (int j = i + 1; j < points.length; j++) {
+                if (points[i].compareTo(points[j]) == 0)
+                    throw new java.lang.IllegalArgumentException("No duplicate points allowed in the input");
+            }
+        }
+    }
+
+    // the number of line segments
+    public int numberOfSegments() 
+    {
         return segments.size();
     }
 
-    public ArrayList<LineSegment> segments() {                // the line segments
-        return segments;
+    // the line segments
+    public LineSegment[] segments() 
+    {
+        return segments.toArray(new LineSegment[0]);
     }
 
-    public static void main(String[] args) {
-        /*Point origin = new Point(0, 0);
-        Point a = new Point(1, 1);
-        Point b = new Point(2, 2);
-        Point c = new Point(3, 3);
-        Point d = new Point(4, 4);
-        Point e = new Point(-1, 0);
-        Point f = new Point(-2, 0);
-        Point g = new Point(-3,0);
-        Point h = new Point(-3,1);
-        Point hi = new Point(-3,2);
-        Point j = new Point(-3,3);
-        Point k = new Point(-3,4);
-
-        Point[] points = {origin, a, b, c, d, e};
-
-        FastCollinearPoints test = new FastCollinearPoints(points);
-        System.out.println("Number of segments: " + test.numberOfSegments());
-
-        for (LineSegment segment : test.segments()) {
-            StdOut.println(segment);
-        }*/
-        
+    public static void main(String[] args) 
+    {
         // read the n points from a file
         In in = new In(args[0]);
         int n = in.readInt();

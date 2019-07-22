@@ -1,70 +1,105 @@
 import java.util.Arrays;
+import java.util.ArrayList;
+import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
 
-public class BruteCollinearPoints {
-    private LineSegment[] segments;
-    private int arrIndex = 0;
+public class BruteCollinearPoints 
+{
+    private ArrayList<LineSegment> segments;
 
     public BruteCollinearPoints(Point[] points) {     // finds all line segments containing 4 points
-        if (points == null) {
-            throw new java.lang.IllegalArgumentException("No argument in BruteCollinearPoints arguments");
-        }
+        
+        validateInput(points);
 
-        Arrays.sort(points);
+        Point[] cpyArr = points.clone();
 
-        segments = new LineSegment[points.length];
-        for (int i = 0; i < points.length; i++) {
-            for (int j = i + 1; j < points.length; j++) {
-                double slopeA = points[i].slopeTo(points[j]);
+        Arrays.sort(cpyArr);
 
-                for (int k = j + 1; k < points.length; k++) {
-                    double slopeB = points[j].slopeTo(points[k]);
+        checkDuplicates(cpyArr);
+
+        segments = new ArrayList<LineSegment>();
+        for (int i = 0; i < cpyArr.length; i++) {
+            for (int j = i + 1; j < cpyArr.length; j++) {
+                double slopeA = cpyArr[i].slopeTo(cpyArr[j]);
+
+                for (int k = j + 1; k < cpyArr.length; k++) {
+                    double slopeB = cpyArr[j].slopeTo(cpyArr[k]);
 
                     if (slopeA != slopeB)
                         continue;
 
-                    for (int m = k + 1; m < points.length; m++) {
-                        double slopeC = points[k].slopeTo(points[m]);
+                    for (int m = k + 1; m < cpyArr.length; m++) {
+                        double slopeC = cpyArr[k].slopeTo(cpyArr[m]);
 
                         if (slopeA != slopeC)
                             continue;
 
-                        LineSegment newLineSeg = new LineSegment(points[i], points[m]);
-                        segments[arrIndex++] = newLineSeg;
+                        LineSegment newLineSeg = new LineSegment(cpyArr[i], cpyArr[m]);
+                        segments.add(newLineSeg);
                     }
                 }
             }
         }
     }
 
+    private void validateInput(Point[] points) {
+        if (points == null) {
+            throw new java.lang.IllegalArgumentException("The arguement cannot be null");
+        }
+
+        for (int i = 0; i < points.length; i++) {
+            if (points[i] == null) {
+                throw new java.lang.IllegalArgumentException("The arguement cannot cannot contain a null");
+            }
+        }
+    }
+
+    private void checkDuplicates(Point[] points) {
+        for (int i = 0; i < points.length; i++) {
+            for (int j = i + 1; j < points.length; j++) {
+                if (points[i].compareTo(points[j]) == 0) {
+                    throw new java.lang.IllegalArgumentException("No duplicate points allowed in the input");
+                }
+            }
+        }
+    }
+
     public int numberOfSegments() {                  // the number of line segments
-        return arrIndex;
+        return segments.size();
     }
 
     public LineSegment[] segments() {                // the line segments
-        return segments;
+        return segments.toArray(new LineSegment[0]);
     }
 
     public static void main(String[] args) {
-        Point a = new Point(0, 0);
-        Point b = new Point(1, 1);
-        Point c = new Point(2, 2);
-        Point d = new Point(3, 3);
-        Point e = new Point(4, 4);
-        Point f = new Point(2, 0);
-        Point g = new Point(2, -4);
-        Point h = new Point(2, -6);
-        Point hi = new Point(4, -2);
-        Point j = new Point(5, -4);
-        Point k = new Point(6, -6);
-        Point l = new Point(4, 5);
-        Point m = new Point(4, 10);
-        Point[] arr = {d, a, c, b, h, f, g};
-
-        BruteCollinearPoints test = new BruteCollinearPoints(arr);
-        LineSegment[] seg = test.segments();
-        System.out.println(test.numberOfSegments());
-        for (int i = 0; i < test.numberOfSegments(); i++) {
-            System.out.println(seg[i].toString());
+        // read the n points from a file
+        In in = new In(args[0]);
+        int n = in.readInt();
+        Point[] points = new Point[n];
+        for (int i = 0; i < n; i++) {
+            int x = in.readInt();
+            int y = in.readInt();
+            points[i] = new Point(x, y);
         }
+    
+        // draw the points
+        StdDraw.enableDoubleBuffering();
+        StdDraw.setXscale(0, 32768);
+        StdDraw.setYscale(0, 32768);
+        for (Point p : points) {
+            p.draw();
+        }
+        StdDraw.show();
+        
+        // print and draw the line segments
+        FastCollinearPoints collinear = new FastCollinearPoints(points);
+        for (LineSegment segment : collinear.segments()) {
+            StdOut.println(segment);
+            segment.draw();
+        }
+        StdDraw.show();
+        
     }
 }
