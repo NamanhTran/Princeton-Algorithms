@@ -45,6 +45,7 @@ private static void merge(Comparable[] a, Comparable[] aux, int lo, int mid, int
 ```
 
 ## Assertion
+
 -----
 
 **Assertion:** Statements to lest assumtions about your program
@@ -59,7 +60,9 @@ assert isSorted(a, lo, hi);
 ```
 
 **Can enable or disable at runtime** => No cost in production code
+
 ```java
+
 java -ea MyProgram // enable assertions
 java -da MyProgram // disable assertions (default)
 ```
@@ -67,6 +70,7 @@ java -da MyProgram // disable assertions (default)
 **Best practices:** Use assertions to check internal invariants; assume assertions will be disabled in production code (do not use for external argument checking)
 
 ## Mergesort: Java Implementation
+
 ```java
 public class Merge 
 {
@@ -95,19 +99,58 @@ public class Merge
 ```
 
 ## Mergesort: empirical analysis
+
 ----
 
 **Running time estimates:**
+
 - Laptop executes 10^8 compares/second
 - Supercomputer executes 10^12 compares/second
 
-![Merge sort empirical analysis]("Need to do link")
+1. Home computer:
+
+   Insertion sort (N^2):
+   - input size of thousand: instant
+   - million: 2.8 hours
+   - billion: 317 years
+
+   Merge sort (N log N):
+   - thousand: instant
+   - million: **1 second**
+   - billion: **18 min**
+
+2. Super computer:
+
+   Insertion sort(N^2)
+   - thousand: instant
+   - million: 1 second
+   - billion: 1 week
+
+   Mergesort (N log N):
+   - thousand: instant
+   - million: **instant**
+   - billion: **instant**
 
 **Bottom Line:** Good algorithms are better than supercomputers.
 
 ## Mergesort: number of compares and array accesses
+
 ----
 
 **Proposition:** Mergesort uses at most N lg N compares and 6 N lg N array accesses to sort any array of size N.
 
 **Pf sketch:**
+
+Look back at slides when I understand proofs and reoccruences again
+
+## Mergesort analysis: memory
+
+---
+
+**Prosition.** Mergesory uses extra space proportional to N.
+
+**Pf.** The array ```aux[]``` needs to be size N for the last merge
+
+**Def.** A sorting algorithm is in-place if it uses <= c log N extra memory.
+
+**Ex.** Insertion sort, selection sort, shellsort.
