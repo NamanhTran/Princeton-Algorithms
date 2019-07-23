@@ -2,8 +2,6 @@
 
 ## Basic Plan
 
-----
-
 - Divide the array in half
 - Recursively sort left and right half
 - Merge two halves
@@ -45,8 +43,6 @@ private static void merge(Comparable[] a, Comparable[] aux, int lo, int mid, int
 ```
 
 ## Assertion
-
------
 
 **Assertion:** Statements to lest assumtions about your program
 
@@ -100,8 +96,6 @@ public class Merge
 
 ## Mergesort: empirical analysis
 
-----
-
 **Running time estimates:**
 
 - Laptop executes 10^8 compares/second
@@ -135,8 +129,6 @@ public class Merge
 
 ## Mergesort: number of compares and array accesses
 
-----
-
 **Proposition:** Mergesort uses at most N lg N compares and 6 N lg N array accesses to sort any array of size N.
 
 **Pf sketch:**
@@ -156,8 +148,6 @@ Look back at slides when I understand proofs and reoccruences again
 **Ex.** Insertion sort, selection sort, shellsort.
 
 ## Mergesort: practical improvements
-
-----
 
 **Use insertion sort for small subarrays.**
 
@@ -266,8 +256,6 @@ public class MergeBU
 
 ## Complexity of sorting
 
-----
-
 **Computational complexity.** Framework to study efficiency of algorithms for solving a particular problem X.
 
 **Model of computation.** Allowable operations.
@@ -296,13 +284,9 @@ public class MergeBU
 
 ## Decision tree (for 3 distinct items a, b, and c)
 
-----
-
 Look at the slides
 
 ## Compare-based lower bound for sorting
-
-----
 
 **Proposition.** Any compare-based sorting algorithm must use at least ln (N!) ~ N lg N compares in the worst-case.
 
@@ -318,8 +302,6 @@ Look at the slides
 - Stirling's formula
 
 ## Complexity results in context
-
-----
 
 **Compares?** Mergesort **is** optimal with respect to number compares.
 
@@ -353,8 +335,6 @@ Lower bound may not hold if the algorithm has information about:
 
 ## Comparable interface: review
 
-----
-
 **Comparable interface:** sort using a type's **natural order**.
 
 ```java
@@ -386,8 +366,6 @@ public class Date implemnts Comparable<Date>
 
 ## Comparator Interface
 
-----
-
 Sort using an **alternate order**.
 
 ```java
@@ -406,6 +384,4 @@ public interface Comparator<Key>
 - ...
 
 ## Comparator interface: system sort
-
-----
 
