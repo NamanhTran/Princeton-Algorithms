@@ -9,7 +9,7 @@
 ## Merging: Java Implementation
 
 ```java
-private static void merge(Comparable[] a, Comparable[] aux, int lo, int mid, int hi) 
+private static void merge(Comparable[] a, Comparable[] aux, int lo, int mid, int hi)
 {
     assert isSorted(a, lo, mid);
     assert isSorte(a, mid+1, hi); // Must satisfy that both half is sorted
@@ -19,12 +19,12 @@ private static void merge(Comparable[] a, Comparable[] aux, int lo, int mid, int
         aux[k] = a[k];
 
     int i = lo, j = mid + 1;
-    for (int k = lo; k <= hi; k++) 
+    for (int k = lo; k <= hi; k++)
     {
         // Case if we hit the mid (last element of the left half)
         if (i > mid)
             a[k] = aux[j++];
-        
+
         // Case if we hit the last element of the right half
         else if (j > hi)
             a[k] = aux[i++];
@@ -68,7 +68,7 @@ java -da MyProgram // disable assertions (default)
 ## Mergesort: Java Implementation
 
 ```java
-public class Merge 
+public class Merge
 {
     private static void merge(...)
     {/* as before */}
@@ -86,7 +86,7 @@ public class Merge
         merge(a, aux, lo, mid, hi);
     }
 
-    public static void sort(Comparable[] a) 
+    public static void sort(Comparable[] a)
     {
         aux = new Comparable[a.length];
         sort(a, aux, 0, a.length - 1);
@@ -198,10 +198,10 @@ private static void merge(Comparable[] a, Comparable[] aux, int lo, int hi)
         // Merge from a[] to aux[]
         if (i > mid)
             aux[k] = a[j++];
-        
+
         else if (j > hi)
             aux[k] = a[i++];
-        
+
         else if (less(a[j], a[i]))
             aux[k] = a[j++];
 
@@ -212,9 +212,9 @@ private static void merge(Comparable[] a, Comparable[] aux, int lo, int hi)
 
 private static void sort(Comparable[] a, Comparable[] aux, int lo, int hi)
 {
-    if (hi <= lo) 
+    if (hi <= lo)
         return;
-    
+
     int mid = lo + (hi - lo) / 2;
     // Switch the roles of aux[] and a[]
     sort(aux, a, lo, mid);
@@ -385,3 +385,86 @@ public interface Comparator<Key>
 
 ## Comparator interface: system sort
 
+**To use with Java system sort:**
+
+- Create Comparator object.
+- Pass as second arguemnt to Arrays.sort().
+
+```java
+String[] a;
+...
+// Natural order
+Arrays.sort(a);
+...
+// Uses alternate order defined by Comparator<String> object
+Arrays.sort(a, String.CASE_INSENSITIVE_ORDER);
+...
+Arrays.sort(a, Collator.getInstance(new Locale("es")));
+...
+Arrays.sort(a, new BritishPhoneBookOrder());
+```
+
+**Bottom line.** Decouples the definition of the data type from the definition of what it means to compare two objects of that type
+
+## Comparator interface: using with our sorting libraries
+
+**To support comparators in our sort implementations:**
+
+- Use `Object` instead of Comparable.
+- Pass `Comparator` to `sort()` and `less()` and use it in `less()`.
+
+```java
+public class Student
+{
+    // One Comparator for the class
+    public static final Comparator<Student> BY_NAME = new ByName();
+    public static final Comparator<Student> BY_SECTION = new BySection();
+    private final String name;
+    private final int section;
+    ...
+
+    private static class ByName implements Comparator<Student>
+    {
+        public int compare(Student v, Student w)
+        { return v.name.compareTo(w.name); }
+    }
+
+    private static class BySection implements Comparator<Student>
+    {
+        public int compare(Student v, Student w)
+        // This technique works here since no dancer of overflow
+        { return v.section - w.section; }
+    }
+}
+```
+
+## Comparator interface: implementing
+
+**To implement a comparator:**
+
+- Define a (nested) class that implements the `Comparator` interface.
+- Implement the `compare()` method.
+
+## Polar order
+
+Look at slides for notes on appying the graham scan to polar orders
+
+# Stablility
+
+**A typical application.** First, sort by name; **then** sort by section.
+
+A **stable** sort preserves the relative order of items with equal keys
+
+**Q.** Which sorts are stable?
+**A.** Insertion sort and mergesort (but not selection sort or shellsort)
+
+**Note.** Need to carefully check code ("less than" vs. "less than or equal to").
+
+Basically when there is a range exchange between items (sheelsort, selection sort, quicksort) the algorithm will likely not be stable
+
+- **Insertion sort** is **stable** because equal items never move past each other.
+- **Selection sort** is **not stable** because long-distance exchange might move an item past some equal item.
+- **Shellsort** is **not stable** because there is long-distance exchanges.
+- **Mergesort** is **stable** because the mergesort itself is pretty self explaintory
+
+- **Merge operation** is stable because it takes from left subarray if the keys are equal.
