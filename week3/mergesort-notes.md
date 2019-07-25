@@ -108,7 +108,7 @@ public class Merge
    - million: 2.8 hours
    - billion: 317 years
 
-   Merge sort (N log N):
+   Mergesort (N log N):
    - thousand: instant
    - million: **1 second**
    - billion: **18 min**
