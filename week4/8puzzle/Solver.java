@@ -15,8 +15,18 @@ public class Solver {
         MinPQ<BoardData> solverHeap = new MinPQ<BoardData>(root.piorityOrder());
         solverHeap.insert(root);
         BoardData minBoard;
+        int num = 0;
 
         do {
+
+            // System.out.println("Step " + num);
+            //
+            // for (BoardData items : solverHeap) {
+            //     System.out.println("Piority: " + items.getPiority() + "\nMoves: " + items.getMoves()
+            //                                + "\nManhattan: " + items.getManhattan());
+            //     System.out.println(items.getBoard().toString());
+            // }
+
 
             minBoard = solverHeap.delMin();
 
@@ -31,6 +41,8 @@ public class Solver {
                 else if (!neighbor.equals(minBoard.getParent().getBoard()))
                     solverHeap.insert(new BoardData(neighbor, minBoard, minBoard.getMoves() + 1));
             }
+
+            num++;
 
         } while (minBoard.getManhattan() != 0);
 
@@ -104,8 +116,16 @@ public class Solver {
                 else if (boardData1.getPiority() < boardData2.getPiority())
                     return -1;
 
-                else
-                    return 0;
+                else {
+                    if (boardData1.getManhattan() > boardData1.getManhattan())
+                        return 1;
+
+                    else if (boardData1.getManhattan() < boardData2.getManhattan())
+                        return -1;
+
+                    else
+                        return 0;
+                }
             };
         }
     }
