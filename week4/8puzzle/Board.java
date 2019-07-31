@@ -21,6 +21,11 @@ public class Board {
         }
     }
 
+    private Board(char[] tiles) {
+        dimension = (int) Math.sqrt(tiles.length);
+        gameBoard = tiles.clone();
+    }
+
     // string representation of this board
     public String toString() {
         StringBuilder boardString = new StringBuilder();
@@ -119,21 +124,21 @@ public class Board {
         for (int i = 0; i < gameBoard.length; i += dimension) {
             for (int j = i; j < i + dimension; j++) {
                 if ((int) gameBoard[toOneDim(i, j)] == 0) {
-                    emptySpaceRow = i / dimension;
-                    emptySpaceCol = j % dimension;
+                    emptySpaceRow = i;
+                    emptySpaceCol = j;
                 }
             }
         }
 
         // Get the top
-        if (emptySpaceRow - 1 >= 0) {
+        if (emptySpaceRow - dimension >= 0) {
             // Make a copy of the board
-            int[][] boardCpy = cpyTo2DArr();
+            char[] boardCpy = gameBoard.clone();
 
             // Swap blank with bottom tile
-            int swap = boardCpy[emptySpaceRow - 1][emptySpaceCol];
-            boardCpy[emptySpaceRow - 1][emptySpaceCol] = 0;
-            boardCpy[emptySpaceRow][emptySpaceCol] = swap;
+            char swap = boardCpy[toOneDim(emptySpaceRow - dimension, emptySpaceCol)];
+            boardCpy[toOneDim(emptySpaceRow - dimension, emptySpaceCol)] = 0;
+            boardCpy[toOneDim(emptySpaceRow, emptySpaceCol)] = swap;
 
 
             // Add to the List
@@ -141,14 +146,14 @@ public class Board {
         }
 
         // Get the bottom
-        if (emptySpaceRow + 1 < dimension()) {
+        if (emptySpaceRow + dimension < gameBoard.length) {
             // Make a copy of the board
-            int[][] boardCpy = cpyTo2DArr();
+            char[] boardCpy = gameBoard.clone();
 
             // Swap blank with bottom tile
-            int swap = boardCpy[emptySpaceRow + 1][emptySpaceCol];
-            boardCpy[emptySpaceRow + 1][emptySpaceCol] = 0;
-            boardCpy[emptySpaceRow][emptySpaceCol] = swap;
+            char swap = boardCpy[toOneDim(emptySpaceRow + dimension, emptySpaceCol)];
+            boardCpy[toOneDim(emptySpaceRow + dimension, emptySpaceCol)] = 0;
+            boardCpy[toOneDim(emptySpaceRow, emptySpaceCol)] = swap;
 
 
             // Add to the List
@@ -156,28 +161,28 @@ public class Board {
         }
 
         // Get the left
-        if (emptySpaceCol - 1 >= 0) {
+        if (emptySpaceCol % dimension > 0) {
             // Make a copy of the board
-            int[][] boardCpy = cpyTo2DArr();
+            char[] boardCpy = gameBoard.clone();
 
             // Swap blank with bottom tile
-            int swap = boardCpy[emptySpaceRow][emptySpaceCol - 1];
-            boardCpy[emptySpaceRow][emptySpaceCol - 1] = 0;
-            boardCpy[emptySpaceRow][emptySpaceCol] = swap;
+            char swap = boardCpy[toOneDim(emptySpaceRow, emptySpaceCol - 1)];
+            boardCpy[toOneDim(emptySpaceRow, emptySpaceCol - 1)] = 0;
+            boardCpy[toOneDim(emptySpaceRow, emptySpaceCol)] = swap;
 
             // Add to the List
             neighbors.add(new Board(boardCpy));
         }
 
         // Get the right
-        if (emptySpaceCol + 1 < dimension()) {
+        if ((emptySpaceCol + 1) % dimension > 0) {
             // Make a copy of the board
-            int[][] boardCpy = cpyTo2DArr();
+            char[] boardCpy = gameBoard.clone();
 
             // Swap blank with bottom tile
-            int swap = boardCpy[emptySpaceRow][emptySpaceCol + 1];
-            boardCpy[emptySpaceRow][emptySpaceCol + 1] = 0;
-            boardCpy[emptySpaceRow][emptySpaceCol] = swap;
+            char swap = boardCpy[toOneDim(emptySpaceRow, emptySpaceCol + 1)];
+            boardCpy[toOneDim(emptySpaceRow, emptySpaceCol + 1)] = 0;
+            boardCpy[toOneDim(emptySpaceRow, emptySpaceCol)] = swap;
 
             // Add to the List
             neighbors.add(new Board(boardCpy));
@@ -195,17 +200,6 @@ public class Board {
         int index = row + (col % dimension);
 
         return index;
-    }
-
-    private int[][] cpyTo2DArr() {
-        int[][] boardCpy = new int[dimension()][dimension()];
-        for (int i = 0; i < gameBoard.length; i += dimension) {
-            for (int j = i; j < i + dimension; j++) {
-                boardCpy[i / dimension][j % dimension] = gameBoard[toOneDim(i, j)];
-            }
-        }
-
-        return boardCpy;
     }
 
     // unit testing (not graded)

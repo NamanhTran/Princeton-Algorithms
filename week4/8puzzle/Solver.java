@@ -19,7 +19,7 @@ public class Solver {
 
         do {
 
-            // System.out.println("Step " + num);
+            // System.out.println("Step " + num + "\n\n");
             //
             // for (BoardData items : solverHeap) {
             //     System.out.println("Piority: " + items.getPiority() + "\nMoves: " + items.getMoves()
