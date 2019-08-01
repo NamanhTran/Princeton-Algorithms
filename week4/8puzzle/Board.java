@@ -71,7 +71,7 @@ public class Board {
         return hammingDistance;
     }
 
-    // sum of Manhattan distances between tiles and goal (WORKING ON CONVERTING FROM 2D TO 1D array)
+    // sum of Manhattan distances between tiles and goal
     public int manhattan() {
         int boardSize = dimension();
         int manhattanDistance = 0;
@@ -193,7 +193,25 @@ public class Board {
 
     // a board that is obtained by exchanging any pair of tiles
     public Board twin() {
-        return (this);
+        char[] boardCpy = gameBoard.clone();
+
+        int index1 = 0;
+
+        if ((int) boardCpy[index1++] == 0)
+            index1++;
+
+        int index2 = index1;
+
+        if ((int) boardCpy[index2++] == 0)
+            index2++;
+
+        char swap = boardCpy[index1 - 1];
+
+        boardCpy[index1 - 1] = boardCpy[index2 - 1];
+
+        boardCpy[index2 - 1] = swap;
+
+        return new Board(boardCpy);
     }
 
     private int toOneDim(int row, int col) {
@@ -221,6 +239,9 @@ public class Board {
         for (Board neighbor : test.neighbors()) {
             System.out.println(neighbor.toString());
         }
+
+        System.out.println("Twin: ");
+        System.out.println(test.twin().toString());
     }
 
 }

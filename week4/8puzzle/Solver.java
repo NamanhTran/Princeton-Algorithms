@@ -2,19 +2,28 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 
 public class Solver {
     private Iterable<Board> solutionPath;
-    private int totalMoves;
+    private int totalMoves = -1;
+    private boolean notSolvable = false;
+    private ArrayList<Integer> cache = new ArrayList<Integer>();
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
         BoardData root = new BoardData(initial, null, 0);
-        MinPQ<BoardData> solverHeap = new MinPQ<BoardData>(root.piorityOrder());
+        MinPQ<BoardData> solverHeap = new MinPQ<BoardData>(piorityOrder());
         solverHeap.insert(root);
+
+        BoardData rootTwin = new BoardData(initial.twin(), null, 0);
+        MinPQ<BoardData> solverHeapTwin = new MinPQ<BoardData>(piorityOrder());
+        solverHeapTwin.insert(rootTwin);
+
         BoardData minBoard;
+        BoardData minBoardTwin;
         int num = 0;
 
         do {
@@ -30,29 +39,51 @@ public class Solver {
 
             minBoard = solverHeap.delMin();
 
-            Iterable<Board> neighbors = minBoard.getBoard().neighbors();
+            Iterable<Board> neighbors = minBoard.board.neighbors();
             for (Board neighbor : neighbors) {
 
                 // If min node doesn't have parent
-                if (minBoard.getParent() == null)
-                    solverHeap.insert(new BoardData(neighbor, minBoard, minBoard.getMoves() + 1));
+                if (minBoard.parent == null)
+                    solverHeap.insert(new BoardData(neighbor, minBoard, minBoard.moves + 1));
 
                     // Need to avoid neighbor that is the same as the grandparent (min's parent)
-                else if (!neighbor.equals(minBoard.getParent().getBoard()))
-                    solverHeap.insert(new BoardData(neighbor, minBoard, minBoard.getMoves() + 1));
+                else if (!neighbor.equals(minBoard.parent.board))
+                    solverHeap.insert(new BoardData(neighbor, minBoard, minBoard.moves + 1));
+            }
+
+            // Twin Runthrough
+            minBoardTwin = solverHeapTwin.delMin();
+
+            Iterable<Board> neighborsTwin = minBoardTwin.board.neighbors();
+            for (Board neighbor : neighborsTwin) {
+
+                // If min node doesn't have parent
+                if (minBoardTwin.parent == null)
+                    solverHeapTwin.insert(new BoardData(neighbor, minBoardTwin,
+                                                        minBoardTwin.moves + 1));
+
+                    // Need to avoid neighbor that is the same as the grandparent (min's parent)
+                else if (!neighbor.equals(minBoardTwin.parent.board))
+                    solverHeapTwin.insert(new BoardData(neighbor, minBoardTwin,
+                                                        minBoardTwin.moves + 1));
             }
 
             num++;
 
-        } while (minBoard.getManhattan() != 0);
+        } while (!minBoard.board.isGoal() && !minBoardTwin.board.isGoal());
 
-        totalMoves = minBoard.getMoves();
+        if (minBoardTwin.board.isGoal()) {
+            notSolvable = true;
+            return;
+        }
+
+        totalMoves = minBoard.moves;
 
         // Get the solution path
         LinkedList<Board> solution = new LinkedList<Board>();
         while (minBoard != null) {
-            solution.addFirst(minBoard.getBoard());
-            minBoard = minBoard.getParent();
+            solution.addFirst(minBoard.board);
+            minBoard = minBoard.parent;
         }
 
         solutionPath = solution;
@@ -60,7 +91,7 @@ public class Solver {
 
     // is the initial board solvable?
     public boolean isSolvable() {
-        return true;
+        return notSolvable;
     }
 
     // min number of moves to solve initial board
@@ -74,11 +105,11 @@ public class Solver {
     }
 
     private class BoardData {
-        private Board board;
-        private int moves;
-        private int manhattan;
-        private int piority;
-        private BoardData parent;
+        public final Board board;
+        public final int moves;
+        public final int manhattan;
+        public final int piority;
+        public final BoardData parent;
 
         public BoardData(Board gameBoard, BoardData parent, int moves) {
             board = gameBoard;
@@ -87,47 +118,27 @@ public class Solver {
             piority = moves + manhattan;
             this.parent = parent;
         }
+    }
 
-        public int getMoves() {
-            return moves;
-        }
+    public Comparator<BoardData> piorityOrder() {
+        return (boardData1, boardData2) -> {
+            if (boardData1.piority > boardData2.piority)
+                return 1;
 
-        public int getManhattan() {
-            return manhattan;
-        }
+            else if (boardData1.piority < boardData2.piority)
+                return -1;
 
-        public int getPiority() {
-            return piority;
-        }
-
-        public Board getBoard() {
-            return board;
-        }
-
-        public BoardData getParent() {
-            return parent;
-        }
-
-        public Comparator<BoardData> piorityOrder() {
-            return (boardData1, boardData2) -> {
-                if (boardData1.getPiority() > boardData2.getPiority())
+            else {
+                if (boardData1.manhattan > boardData2.manhattan)
                     return 1;
 
-                else if (boardData1.getPiority() < boardData2.getPiority())
+                else if (boardData1.manhattan < boardData2.manhattan)
                     return -1;
 
-                else {
-                    if (boardData1.getManhattan() > boardData1.getManhattan())
-                        return 1;
-
-                    else if (boardData1.getManhattan() < boardData2.getManhattan())
-                        return -1;
-
-                    else
-                        return 0;
-                }
-            };
-        }
+                else
+                    return 0;
+            }
+        };
     }
 
     // test client
