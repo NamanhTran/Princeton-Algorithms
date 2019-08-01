@@ -2,18 +2,19 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 
 public class Solver {
     private Iterable<Board> solutionPath;
     private int totalMoves = -1;
-    private boolean notSolvable = false;
-    private ArrayList<Integer> cache = new ArrayList<Integer>();
+    private boolean solvable = true;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
+        if (initial == null)
+            throw new java.lang.IllegalArgumentException("The arguement cannot be null");
+
         BoardData root = new BoardData(initial, null, 0);
         MinPQ<BoardData> solverHeap = new MinPQ<BoardData>(piorityOrder());
         solverHeap.insert(root);
@@ -24,19 +25,8 @@ public class Solver {
 
         BoardData minBoard;
         BoardData minBoardTwin;
-        int num = 0;
 
         do {
-
-            // System.out.println("Step " + num + "\n\n");
-            //
-            // for (BoardData items : solverHeap) {
-            //     System.out.println("Piority: " + items.getPiority() + "\nMoves: " + items.getMoves()
-            //                                + "\nManhattan: " + items.getManhattan());
-            //     System.out.println(items.getBoard().toString());
-            // }
-
-
             minBoard = solverHeap.delMin();
 
             Iterable<Board> neighbors = minBoard.board.neighbors();
@@ -68,12 +58,10 @@ public class Solver {
                                                         minBoardTwin.moves + 1));
             }
 
-            num++;
-
         } while (!minBoard.board.isGoal() && !minBoardTwin.board.isGoal());
 
         if (minBoardTwin.board.isGoal()) {
-            notSolvable = true;
+            solvable = false;
             return;
         }
 
@@ -91,7 +79,7 @@ public class Solver {
 
     // is the initial board solvable?
     public boolean isSolvable() {
-        return notSolvable;
+        return solvable;
     }
 
     // min number of moves to solve initial board
@@ -120,7 +108,7 @@ public class Solver {
         }
     }
 
-    public Comparator<BoardData> piorityOrder() {
+    private Comparator<BoardData> piorityOrder() {
         return (boardData1, boardData2) -> {
             if (boardData1.piority > boardData2.piority)
                 return 1;

@@ -11,6 +11,9 @@ public class Board {
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
     public Board(int[][] tiles) {
+        if (tiles == null)
+            throw new java.lang.IllegalArgumentException("The arguement cannot be null");
+
         dimension = tiles.length;
         gameBoard = new char[dimension * dimension];
         int arrIndex = 0;
@@ -22,6 +25,9 @@ public class Board {
     }
 
     private Board(char[] tiles) {
+        if (tiles == null)
+            throw new java.lang.IllegalArgumentException("The arguement cannot be null");
+        
         dimension = (int) Math.sqrt(tiles.length);
         gameBoard = tiles.clone();
     }
