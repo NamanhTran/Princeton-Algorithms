@@ -28,6 +28,8 @@ public class KdTree {
     }
 
     public void insert(Point2D p) {
+        if (p == null)
+            throw new java.lang.IllegalArgumentException("The argument cannot be null");
         // If root is null then create the first node
         root = put(root, p, true);
     }
@@ -114,17 +116,30 @@ public class KdTree {
 
     // does the set contain point p?
     public boolean contains(Point2D p) {
+        if (p == null)
+            throw new java.lang.IllegalArgumentException("The argument cannot be null");
+
         Node trav = root;
 
         while (trav != null) {
-            if (p.compareTo(trav.point) > 0)
-                trav = trav.right;
-
-            else if (p.compareTo(trav.point) < 0)
-                trav = trav.left;
-
-            else
+            if (p.compareTo(trav.point) == 0)
                 return true;
+
+            if (isHorizontal(trav.rectangle)) {
+                if (p.y() < trav.point.y())
+                    trav = trav.left;
+
+                else
+                    trav = trav.right;
+            }
+
+            else {
+                if (p.x() < trav.point.x())
+                    trav = trav.left;
+
+                else
+                    trav = trav.right;
+            }
         }
 
         return false;
@@ -169,6 +184,9 @@ public class KdTree {
 
     // all points that are inside the rectangle (or on the boundary)
     public Iterable<Point2D> range(RectHV rect) {
+        if (rect == null)
+            throw new java.lang.IllegalArgumentException("The argument cannot be null");
+
         LinkedList<Point2D> candidates = new LinkedList<Point2D>();
         getRange(root, rect, candidates);
         return candidates;
@@ -209,6 +227,12 @@ public class KdTree {
 
     // a nearest neighbor in the set to point p; null if the set is empty
     public Point2D nearest(Point2D p) {
+        if (p == null)
+            throw new java.lang.IllegalArgumentException("The argument cannot be null");
+
+        if (isEmpty())
+            return null;
+
         Point2D champion = root.point;
         Double championDist = p.distanceTo(root.point);
         return closest(root, p, champion, championDist);
@@ -225,7 +249,7 @@ public class KdTree {
         if (p.distanceTo(x.point) < champDist) {
             champion = x.point;
             champDist = p.distanceTo(x.point);
-            System.out.println("New Champ: " + x.point.toString() + " Dist: " + champDist);
+            //System.out.println("New Champ: " + x.point.toString() + " Dist: " + champDist);
         }
 
         // If horizontal compare only using y coord
@@ -233,7 +257,7 @@ public class KdTree {
             if (p.y() < x.rectangle.ymax()) {
                 contender = closest(x.left, p, champion, p.distanceTo(champion));
                 if (p.distanceTo(contender) < champDist) {
-                    if (!isOtherRecCloser(x.right, p, champDist))
+                    if (x.rectangle.distanceTo(p) > p.distanceTo(contender))
                         return contender;
 
                     champion = contender;
@@ -248,7 +272,7 @@ public class KdTree {
             else {
                 contender = closest(x.right, p, champion, p.distanceTo(champion));
                 if (p.distanceTo(contender) < champDist) {
-                    if (!isOtherRecCloser(x.left, p, champDist))
+                    if (x.rectangle.distanceTo(p) > p.distanceTo(contender))
                         return contender;
 
                     champion = contender;
@@ -266,7 +290,7 @@ public class KdTree {
             if (p.x() < x.rectangle.xmax()) {
                 contender = closest(x.left, p, champion, p.distanceTo(champion));
                 if (p.distanceTo(contender) < champDist) {
-                    if (!isOtherRecCloser(x.right, p, champDist))
+                    if (x.rectangle.distanceTo(p) > p.distanceTo(contender))
                         return contender;
 
                     champion = contender;
@@ -281,7 +305,7 @@ public class KdTree {
             else {
                 contender = closest(x.right, p, champion, p.distanceTo(champion));
                 if (p.distanceTo(contender) < champDist) {
-                    if (!isOtherRecCloser(x.left, p, champDist))
+                    if (x.rectangle.distanceTo(p) > p.distanceTo(contender))
                         return contender;
 
                     champion = contender;

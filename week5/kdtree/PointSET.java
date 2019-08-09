@@ -25,6 +25,9 @@ public class PointSET {
     }
 
     public void insert(Point2D p) {
+        if (p == null)
+            throw new java.lang.IllegalArgumentException("The argument cannot be null");
+
         if (!contains(p)) {
             root.add(p);
         }
@@ -32,6 +35,9 @@ public class PointSET {
 
     // does the set contain point p?
     public boolean contains(Point2D p) {
+        if (p == null)
+            throw new java.lang.IllegalArgumentException("The argument cannot be null");
+
         return root.contains(p);
     }
 
@@ -48,6 +54,9 @@ public class PointSET {
 
     // all points that are inside the rectangle (or on the boundary)
     public Iterable<Point2D> range(RectHV rect) {
+        if (rect == null)
+            throw new java.lang.IllegalArgumentException("The argument cannot be null");
+
         Iterable<Point2D> inside = new LinkedList<Point2D>();
         Iterator<Point2D> pointIterator = root.iterator();
 
@@ -62,6 +71,12 @@ public class PointSET {
 
     // a nearest neighbor in the set to point p; null if the set is empty
     public Point2D nearest(Point2D p) {
+        if (p == null)
+            throw new java.lang.IllegalArgumentException("The argument cannot be null");
+
+        if (isEmpty())
+            return null;
+
         Iterable<Point2D> inside = new LinkedList<Point2D>();
         Iterator<Point2D> pointIterator = root.iterator();
 
